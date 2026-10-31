@@ -1,8 +1,14 @@
-# Modelo de Machine Learning para estimar el Índice de Vulnerabilidad Climática (IVC) en ciudades colombianas
+# Construcción del Índice de Vulnerabilidad Climática-Urbana integrando variables ambientales y socioeconómicas mediante ciencia de datos
 
-Desarrollo replicable del modelamiento estadístico y de *machine learning* de mi tesis: un modelo **LightGBM** que estima el IVC a nivel de **manzana urbana** en Bogotá D.C. a partir del Censo Nacional de Población y Vivienda 2018 (DANE) y variables climáticas, y su **transferencia espacial** a Medellín y Cali. El flujo se desarrolló en **Google Colab** y **AWS (SageMaker, Glue, S3)**.
+Repositorio con el desarrollo replicable del modelamiento de *machine learning* de la tesis de **Maestría en Ciencia de Datos** de la Pontificia Universidad Javeriana Cali: un modelo **LightGBM** que estima el **Índice de Vulnerabilidad Climática-Urbana (IVC)** a nivel de **manzana urbana** en Bogotá D.C. a partir del Censo Nacional de Población y Vivienda 2018 (DANE) y variables climáticas, y su **transferencia espacial** a Medellín y Cali. El flujo se desarrolló en **Google Colab** y **AWS (SageMaker, Glue, S3)**.
 
-> **Estado:** tesis en desarrollo · **Lenguaje:** Python · **Autor:** Jorber Andrés Pardo Franco
+| | |
+|---|---|
+| **Autores** | Jorber Andrés Pardo Franco · Alexandra Ortiz Rodríguez · Andrés Felipe Ospina Nagles |
+| **Directora** | Yady Tatiana Solano-Correa |
+| **Programa** | Maestría en Ciencia de Datos · Facultad de Ingeniería y Ciencias |
+| **Institución** | Pontificia Universidad Javeriana Cali · 2026 |
+| **Lenguaje** | Python |
 
 ## Resultados principales
 
@@ -95,4 +101,4 @@ Código bajo licencia MIT (ver `LICENSE`). Los datos derivados del DANE y de las
 
 ## Cómo citar
 
-> Pardo Franco, J. A. (2026). *Modelo de Machine Learning para la estimación del Índice de Vulnerabilidad Climática (IVC) en ciudades colombianas* [Tesis, repositorio de código]. GitHub.
+> Pardo Franco, J. A., Ortiz Rodríguez, A., & Ospina Nagles, A. F. (2026). *Construcción del índice de vulnerabilidad climática-urbana integrando variables ambientales y socioeconómicas mediante ciencia de datos* [Tesis de maestría, Pontificia Universidad Javeriana Cali]. Código disponible en GitHub.
