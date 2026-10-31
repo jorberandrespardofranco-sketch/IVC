@@ -5,7 +5,7 @@ Repositorio con el desarrollo replicable del modelamiento de *machine learning* 
 | | |
 |---|---|
 | **Autores** | Jorber Andrés Pardo Franco · Alexandra Ortiz Rodríguez · Andrés Felipe Ospina Nagles |
-| **Directora** | Yady Tatiana Solano-Correa |
+| **Directora** | Yady Tatiana Solano Correa |
 | **Programa** | Maestría en Ciencia de Datos · Facultad de Ingeniería y Ciencias |
 | **Institución** | Pontificia Universidad Javeriana Cali · 2026 |
 | **Lenguaje** | Python |
