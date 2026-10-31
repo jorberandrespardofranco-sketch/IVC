@@ -1,0 +1,13 @@
+# Entorno Colab / local (Python 3.10+)
+pandas
+numpy
+scipy
+statsmodels
+scikit-learn
+lightgbm
+matplotlib
+seaborn
+plotly
+joblib
+geopandas
+fiona

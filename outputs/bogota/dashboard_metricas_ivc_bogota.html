@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Métricas — Modelo IVC Bogotá</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0D1B2A;
+    color: #E8F0F8;
+    min-height: 100vh;
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: flex-start; gap: 1.5rem;
+    border-bottom: 1px solid rgba(26,188,180,0.3);
+    padding-bottom: 1.5rem; margin-bottom: 2rem;
+  }
+  .header-badge {
+    background: #1ABCB4; color: #04342C;
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    padding: 4px 12px; border-radius: 4px; white-space: nowrap;
+    margin-top: 4px;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; line-height: 1.3; color: #fff; }
+  .header p  { font-size: 13px; color: #7A9BBF; margin-top: 4px; line-height: 1.5; }
+
+  /* ── KPI cards ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 2rem;
+  }
+  .kpi {
+    background: #132235;
+    border: 1px solid rgba(26,188,180,0.18);
+    border-radius: 10px; padding: 1.1rem 1.25rem;
+    position: relative; overflow: hidden;
+  }
+  .kpi::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .kpi.teal::before  { background: #1ABCB4; }
+  .kpi.blue::before  { background: #4A9EE8; }
+  .kpi.amber::before { background: #E8A940; }
+  .kpi.green::before { background: #5CB87A; }
+
+  .kpi-label { font-size: 11px; color: #7A9BBF; letter-spacing: .06em; margin-bottom: 6px; }
+  .kpi-value { font-size: 28px; font-weight: 700; color: #fff; line-height: 1; }
+  .kpi-sub   { font-size: 11px; color: #7A9BBF; margin-top: 5px; }
+  .kpi-icon  { position: absolute; right: 14px; top: 14px; font-size: 22px; color: rgba(255,255,255,.1); }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 12px; font-weight: 600; letter-spacing: .1em;
+    color: #1ABCB4; text-transform: uppercase;
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(26,188,180,0.2);
+  }
+
+  /* ── Metrics comparison table ── */
+  .metrics-card {
+    background: #132235;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px; overflow: hidden; margin-bottom: 2rem;
+  }
+  .metrics-table { width: 100%; border-collapse: collapse; }
+  .metrics-table thead tr { background: #0D2137; }
+  .metrics-table th {
+    padding: 10px 16px; font-size: 11px; font-weight: 600;
+    color: #7A9BBF; letter-spacing: .07em; text-align: left;
+  }
+  .metrics-table th:not(:first-child) { text-align: center; }
+  .metrics-table td {
+    padding: 12px 16px; font-size: 14px; border-top: 1px solid rgba(255,255,255,.05);
+    color: #C8D8E8;
+  }
+  .metrics-table td:not(:first-child) { text-align: center; font-weight: 600; }
+  .metrics-table tr:hover td { background: rgba(26,188,180,.04); }
+  .row-label { font-size: 13px; font-weight: 500; color: #E8F0F8; }
+  .row-sub   { font-size: 11px; color: #7A9BBF; margin-top: 2px; }
+
+  .badge-set {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+    background: rgba(26,188,180,.12); color: #1ABCB4;
+  }
+  .val-r2   { color: #1ABCB4; }
+  .val-mae  { color: #4A9EE8; }
+  .val-rmse { color: #E8A940; }
+
+  /* ── Charts row ── */
+  .charts-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 2rem;
+  }
+  .chart-card {
+    background: #132235;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px; padding: 1.25rem;
+  }
+  .chart-title { font-size: 12px; color: #7A9BBF; margin-bottom: 14px; font-weight: 500; }
+  .chart-wrap  { position: relative; height: 200px; }
+
+  /* ── Variable importance ── */
+  .var-card {
+    background: #132235;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem;
+  }
+  .var-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .var-row:last-child { border-bottom: none; }
+  .var-rank { font-size: 11px; color: #7A9BBF; min-width: 18px; text-align: right; }
+  .var-name { font-size: 12px; color: #C8D8E8; min-width: 195px; font-family: monospace; }
+  .var-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,.07); border-radius: 3px; }
+  .var-bar { height: 6px; border-radius: 3px; background: #1ABCB4; }
+  .var-bar.env  { background: #4A9EE8; }
+  .var-bar.geo  { background: #E8A940; }
+  .var-bar.edu  { background: #5CB87A; }
+  .var-val { font-size: 11px; color: #7A9BBF; min-width: 40px; text-align: right; }
+
+  /* ── Legend ── */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #7A9BBF; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  /* ── Footer note ── */
+  .footnote {
+    font-size: 11px; color: #4A6880; border-top: 1px solid rgba(255,255,255,.06);
+    padding-top: 1rem; margin-top: 0.5rem; display: flex; gap: 6px; align-items: center;
+  }
+
+  @media (max-width: 580px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .var-name { min-width: 130px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Modelo de Predicción del Índice de Vulnerabilidad Compuesto</h1>
+      <p>LightGBM Regresión &nbsp;·&nbsp; Bogotá D.C. &nbsp;·&nbsp; Censo 2018 + Precipitación Satelital 2000–2018</p>
+    </div>
+    <div class="header-badge">LightGBM</div>
+  </div>
+
+  <!-- KPIs principales -->
+  <div class="section-title"><i class="ti ti-chart-line" aria-hidden="true"></i> Desempeño general</div>
+  <div class="kpi-grid">
+    <div class="kpi teal">
+      <i class="ti ti-trending-up kpi-icon" aria-hidden="true"></i>
+      <div class="kpi-label">R² — Hold-out</div>
+      <div class="kpi-value">0.878</div>
+      <div class="kpi-sub">87.8% varianza explicada</div>
+    </div>
+    <div class="kpi blue">
+      <i class="ti ti-ruler kpi-icon" aria-hidden="true"></i>
+      <div class="kpi-label">MAE — Hold-out</div>
+      <div class="kpi-value">0.017</div>
+      <div class="kpi-sub">Error absoluto medio</div>
+    </div>
+    <div class="kpi amber">
+      <i class="ti ti-target kpi-icon" aria-hidden="true"></i>
+      <div class="kpi-label">RMSE — Hold-out</div>
+      <div class="kpi-value">0.027</div>
+      <div class="kpi-sub">Error cuadrático medio</div>
+    </div>
+    <div class="kpi green">
+      <i class="ti ti-database kpi-icon" aria-hidden="true"></i>
+      <div class="kpi-label">Manzanas analizadas</div>
+      <div class="kpi-value">43,408</div>
+      <div class="kpi-sub">Unidades espaciales</div>
+    </div>
+  </div>
+
+  <!-- Tabla comparativa -->
+  <div class="section-title"><i class="ti ti-table" aria-hidden="true"></i> Comparación por conjunto de evaluación</div>
+  <div class="metrics-card">
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Conjunto</th>
+          <th><span style="color:#1ABCB4">R²</span></th>
+          <th><span style="color:#4A9EE8">MAE</span></th>
+          <th><span style="color:#E8A940">RMSE</span></th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="row-label">Entrenamiento</div>
+            <div class="row-sub">Train (80% datos)</div>
+          </td>
+          <td class="val-r2">0.8920</td>
+          <td class="val-mae">0.0162</td>
+          <td class="val-rmse">0.0253</td>
+          <td><span class="badge-set">Referencia</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="row-label">Validación cruzada</div>
+            <div class="row-sub">10-Fold CV · ±0.008</div>
+          </td>
+          <td class="val-r2">0.8754</td>
+          <td class="val-mae">0.0170</td>
+          <td class="val-rmse">0.0272</td>
+          <td><span class="badge-set">Estable</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="row-label">Prueba hold-out</div>
+            <div class="row-sub">Test (20% datos no vistos)</div>
+          </td>
+          <td class="val-r2">0.8784</td>
+          <td class="val-mae">0.0169</td>
+          <td class="val-rmse">0.0271</td>
+          <td><span class="badge-set">Generaliza</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">R² por conjunto de evaluación</div>
+      <div class="chart-wrap">
+        <canvas id="chartR2" role="img" aria-label="Gráfico de barras de R² en Train 0.892, CV 0.875, Test 0.878">R² Train: 0.892, CV: 0.875, Test hold-out: 0.878</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">MAE y RMSE comparados</div>
+      <div class="chart-wrap">
+        <canvas id="chartErr" role="img" aria-label="Gráfico de error MAE y RMSE en los tres conjuntos">MAE y RMSE en Train, CV y Test</canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variable importance -->
+  <div class="section-title"><i class="ti ti-list-numbers" aria-hidden="true"></i> Top 20 variables por importancia (Gain)</div>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#1ABCB4"></span>Conectividad / Servicios</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#5CB87A"></span>Educación</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#4A9EE8"></span>Ambiental / Clima</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#E8A940"></span>Geoespacial / Vivienda</span>
+  </div>
+  <div class="var-card">
+    <div id="varBars"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footnote">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    Fuentes: Censo Nacional de Población y Vivienda 2018 (DANE) · Precipitación media satelital 2000–2018 · Modelo LightGBM n_estimators=100, learning_rate=0.1
+  </div>
+
+</div>
+
+<script>
+const vars = [
+  { name: 'TP19_INTE2',        gain: 390.6, cat: 'serv' },
+  { name: 'TP19_EE_E3',        gain: 294.4, cat: 'serv' },
+  { name: 'TP51POSTGR',        gain: 177.2, cat: 'edu'  },
+  { name: 'ppt_mean_2000_2018',gain: 130.0, cat: 'env'  },
+  { name: 'TP19_EE_E2',        gain: 113.8, cat: 'serv' },
+  { name: 'TP19_EE_E1',        gain:  73.1, cat: 'serv' },
+  { name: 'TP51PRIMAR',        gain:  62.6, cat: 'edu'  },
+  { name: 'TP51SUPERI',        gain:  53.1, cat: 'edu'  },
+  { name: 'LATITUD',           gain:  50.2, cat: 'geo'  },
+  { name: 'TP14_3_TIP',        gain:  21.9, cat: 'geo'  },
+  { name: 'TP34_1_EDA',        gain:  13.0, cat: 'geo'  },
+  { name: 'TP19_ACU_2',        gain:  12.8, cat: 'serv' },
+  { name: 'TVIVIENDA',         gain:  11.8, cat: 'geo'  },
+  { name: 'LONGITUD',          gain:   9.9, cat: 'geo'  },
+  { name: 'TP19_GAS_1',        gain:   9.4, cat: 'serv' },
+  { name: 'TP19_RECB2',        gain:   9.0, cat: 'serv' },
+  { name: 'TP19_ALC_1',        gain:   8.6, cat: 'serv' },
+  { name: 'AREA',              gain:   8.1, cat: 'geo'  },
+  { name: 'TP19_EE_E4',        gain:   7.6, cat: 'serv' },
+  { name: 'TP19_INTE1',        gain:   6.0, cat: 'serv' },
+];
+
+const catColor = { serv:'', edu:'edu', env:'env', geo:'geo' };
+const maxGain = vars[0].gain;
+
+const container = document.getElementById('varBars');
+vars.forEach((v, i) => {
+  const pct = (v.gain / maxGain * 100).toFixed(1);
+  const cls = catColor[v.cat];
+  container.innerHTML += `
+    <div class="var-row">
+      <span class="var-rank">${i+1}</span>
+      <span class="var-name">${v.name}</span>
+      <div class="var-bar-wrap">
+        <div class="var-bar ${cls}" style="width:${pct}%"></div>
+      </div>
+      <span class="var-val">${v.gain.toFixed(1)}</span>
+    </div>`;
+});
+
+const gridColor = 'rgba(255,255,255,0.06)';
+const tickColor = '#7A9BBF';
+const fontFam = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+const sharedScaleX = {
+  grid: { color: gridColor },
+  ticks: { color: tickColor, font: { family: fontFam, size: 11 } }
+};
+const sharedScaleY = (min, max) => ({
+  min, max,
+  grid: { color: gridColor },
+  ticks: { color: tickColor, font: { family: fontFam, size: 11 } }
+});
+
+new Chart(document.getElementById('chartR2'), {
+  type: 'bar',
+  data: {
+    labels: ['Train', '10-Fold CV', 'Hold-out'],
+    datasets: [{
+      label: 'R²',
+      data: [0.892, 0.8754, 0.8784],
+      backgroundColor: ['#1ABCB4CC', '#4A9EE8CC', '#5CB87ACC'],
+      borderColor:     ['#1ABCB4',   '#4A9EE8',   '#5CB87A'],
+      borderWidth: 1.5,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0D1B2A',
+        borderColor: 'rgba(255,255,255,.1)', borderWidth: 1,
+        titleColor: '#C8D8E8', bodyColor: '#1ABCB4',
+        callbacks: { label: ctx => ' R² = ' + ctx.raw.toFixed(4) }
+      }
+    },
+    scales: {
+      x: sharedScaleX,
+      y: { ...sharedScaleY(0.86, 0.90),
+        ticks: { ...sharedScaleY(0.86,0.90).ticks,
+          callback: v => v.toFixed(3) }
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartErr'), {
+  type: 'bar',
+  data: {
+    labels: ['Train', '10-Fold CV', 'Hold-out'],
+    datasets: [
+      {
+        label: 'MAE',
+        data: [0.0162, 0.0170, 0.0169],
+        backgroundColor: '#4A9EE8AA',
+        borderColor: '#4A9EE8', borderWidth: 1.5,
+        borderRadius: 4,
+      },
+      {
+        label: 'RMSE',
+        data: [0.0253, 0.0272, 0.0271],
+        backgroundColor: '#E8A940AA',
+        borderColor: '#E8A940', borderWidth: 1.5,
+        borderRadius: 4,
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0D1B2A',
+        borderColor: 'rgba(255,255,255,.1)', borderWidth: 1,
+        titleColor: '#C8D8E8', bodyColor: '#fff',
+      }
+    },
+    scales: {
+      x: sharedScaleX,
+      y: { ...sharedScaleY(0.010, 0.032),
+        ticks: { ...sharedScaleY(0.010,0.032).ticks,
+          callback: v => v.toFixed(3) }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

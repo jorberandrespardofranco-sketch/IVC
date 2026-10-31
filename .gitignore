@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Credenciales (NUNCA subir)
+.env
+*.pem
+.aws/
+credentials
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos pesados o externos (usar Git LFS, Zenodo o Drive)
+*.rar
+*.zip
+*.gdb/
+*.shp
+*.shx
+*.dbf
+*.pkl
+data/external/

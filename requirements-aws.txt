@@ -1,0 +1,6 @@
+# Entorno AWS SageMaker: kernel con Python 3.10 (PyCaret no es compatible con 3.12)
+-r requirements.txt
+pycaret
+awswrangler
+boto3
+ipykernel
